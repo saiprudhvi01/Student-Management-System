@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+    <title>EduTrack - Student Management System</title>
+
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='style.css') }}"
+    >
+
+</head>
+
+<body>
+
+<div class="landing-page">
+
+    <nav>
+        <h2>EduTrack</h2>
+        <a href="{{ url_for('login') }}">Login</a>
+    </nav>
+
+    <div class="container">
+
+        <div class="hero-section">
+
+            <h1>Welcome to EduTrack</h1>
+
+            <p>
+                A comprehensive Student Management System designed to streamline academic administration. 
+                Manage students, teachers, subjects, attendance, and marks all in one place.
+            </p>
+
+            <img 
+                src="https://images.unsplash.com/photo-1523050854058-8df90110c9f1?w=800&h=400&fit=crop" 
+                alt="Students studying together" 
+                class="landing-image"
+            >
+
+        </div>
+
+        <div class="features-grid">
+
+            <div class="feature-card">
+                <div class="feature-icon">📚</div>
+                <h3>Student Management</h3>
+                <p>Efficiently manage student records, track academic progress, and maintain comprehensive profiles.</p>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon">👨‍🏫</div>
+                <h3>Teacher Portal</h3>
+                <p>Empower teachers with tools to manage classes, take attendance, and record student performance.</p>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon">📊</div>
+                <h3>Attendance Tracking</h3>
+                <p>Monitor student attendance with easy-to-use tracking and reporting features.</p>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon">📝</div>
+                <h3>Marks Management</h3>
+                <p>Record and analyze student marks across different subjects and examination types.</p>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon">🔒</div>
+                <h3>Secure Access</h3>
+                <p>Role-based authentication ensures data security and appropriate access levels.</p>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon">📱</div>
+                <h3>Responsive Design</h3>
+                <p>Access the system from any device with our fully responsive interface.</p>
+            </div>
+
+        </div>
+
+        <div class="cta-section">
+
+            <h2>Ready to Get Started?</h2>
+
+            <p style="margin-bottom: 30px; color: var(--muted);">
+                Join thousands of educational institutions using EduTrack to transform their administration.
+            </p>
+
+            <a href="{{ url_for('login') }}" class="cta-button">
+                Login to Dashboard
+            </a>
+
+            <p style="margin-top: 20px; color: var(--muted); font-size: 0.9rem;">
+                Contact your administrator to create an account
+            </p>
+
+        </div>
+
+    </div>
+
+</div>
+
+</body>
+
+</html>

@@ -4,7 +4,7 @@
 
 <h1>Dashboard</h1>
 
-<p>Welcome, {{ current_user.name }}</p>
+<p>Welcome, {{ current_user.name }} <span style="color: var(--muted); font-size: 0.9rem;">({{ current_user.role|title }})</span></p>
 
 <div class="cards">
 
@@ -32,6 +32,27 @@
 
     </div>
 
+    {% if current_user.role == 'admin' %}
+    <div class="card">
+
+        <h3>Teacher Accounts</h3>
+
+        <h1>{{ user_count }}</h1>
+
+    </div>
+    {% endif %}
+
 </div>
+
+{% if current_user.role == 'admin' %}
+<div style="margin-top: 30px; padding: 20px; background: rgba(255, 255, 255, 0.8); border-radius: 18px; border: 1px solid var(--border); box-shadow: var(--shadow);">
+    <h3 style="margin-top: 0;">Admin Quick Actions</h3>
+    <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+        <a href="{{ url_for('teachers') }}" class="btn-edit" style="text-decoration: none; padding: 12px 24px; display: inline-block;">Manage Teachers</a>
+        <a href="{{ url_for('students') }}" class="btn-edit" style="text-decoration: none; padding: 12px 24px; display: inline-block;">Manage Students</a>
+        <a href="{{ url_for('subjects') }}" class="btn-edit" style="text-decoration: none; padding: 12px 24px; display: inline-block;">Manage Subjects</a>
+    </div>
+</div>
+{% endif %}
 
 {% endblock %}

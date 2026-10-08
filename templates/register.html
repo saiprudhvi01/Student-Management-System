@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+    <title>EduTrack - Register</title>
+
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='style.css') }}"
+    >
+
+</head>
+
+<body>
+
+<div class="login-box">
+
+    <h1>EduTrack</h1>
+
+    <p>Create Your Account</p>
+
+    <form method="POST">
+
+        <input
+            type="text"
+            name="username"
+            placeholder="Username"
+            required
+        >
+
+        <input
+            type="password"
+            name="password"
+            placeholder="Password"
+            required
+        >
+
+        <input
+            type="password"
+            name="confirm_password"
+            placeholder="Confirm Password"
+            required
+        >
+
+        <input
+            type="text"
+            name="name"
+            placeholder="Full Name"
+            required
+        >
+
+        <input
+            type="email"
+            name="email"
+            placeholder="Email"
+            required
+        >
+
+        <select name="role" required>
+            <option value="">Select Role</option>
+            <option value="student">Student</option>
+            <option value="teacher">Teacher</option>
+        </select>
+
+        <button type="submit">
+            Register
+        </button>
+
+    </form>
+
+    <p class="demo">
+        Already have an account? 
+        <a href="{{ url_for('login') }}" style="color: var(--accent);">Login here</a>
+    </p>
+
+    <p class="demo">
+        <a href="{{ url_for('landing') }}" style="color: var(--muted);">Back to Home</a>
+    </p>
+
+</div>
+
+</body>
+
+</html>

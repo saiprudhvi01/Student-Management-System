@@ -37,6 +37,27 @@
 
 <hr>
 
+<div class="search-filter-bar">
+    <form method="GET" style="display: flex; gap: 12px; flex: 1; margin: 0; padding: 0; border: none; box-shadow: none; background: transparent;">
+        <input
+            name="search"
+            placeholder="Search subjects..."
+            value="{{ search }}"
+            style="flex: 1;"
+        >
+        <select name="department">
+            <option value="">All Departments</option>
+            {% for dept in departments %}
+            <option value="{{ dept }}" {% if department_filter == dept %}selected{% endif %}>{{ dept }}</option>
+            {% endfor %}
+        </select>
+        <button type="submit">Filter</button>
+    </form>
+    {% if search or department_filter %}
+    <a href="{{ url_for('subjects') }}" class="btn-edit" style="text-decoration: none; padding: 12px 18px; display: inline-block;">Clear</a>
+    {% endif %}
+</div>
+
 <div class="table-wrap">
     <table>
 
@@ -46,9 +67,10 @@
         <th>Subject</th>
         <th>Department</th>
         <th>Semester</th>
+        <th>Actions</th>
     </tr>
 
-    {% for subject in subjects %}
+    {% for subject in subjects.items %}
 
     <tr>
 
@@ -57,6 +79,14 @@
         <td>{{ subject.name }}</td>
         <td>{{ subject.department }}</td>
         <td>{{ subject.semester }}</td>
+        <td>
+            <div class="action-buttons">
+                <button type="button" class="btn-edit" data-id="{{ subject.id }}" data-code="{{ subject.code }}" data-name="{{ subject.name }}" data-department="{{ subject.department }}" data-semester="{{ subject.semester }}" onclick="editSubject(this)">Edit</button>
+                <form method="POST" action="/subjects/delete/{{ subject.id }}" style="display: inline;" onsubmit="return confirm('Are you sure you want to delete this subject?');">
+                    <button type="submit" class="btn-delete">Delete</button>
+                </form>
+            </div>
+        </td>
 
     </tr>
 
@@ -64,5 +94,84 @@
 
     </table>
 </div>
+
+{% if subjects.pages > 1 %}
+<div class="pagination">
+    {% if subjects.has_prev %}
+        <a href="{{ url_for('subjects', page=subjects.prev_num, search=search, department=department_filter) }}" style="text-decoration: none;">
+            <button>Previous</button>
+        </a>
+    {% endif %}
+
+    {% for page_num in subjects.iter_pages() %}
+        {% if page_num %}
+            {% if page_num == subjects.page %}
+                <button class="active">{{ page_num }}</button>
+            {% else %}
+                <a href="{{ url_for('subjects', page=page_num, search=search, department=department_filter) }}" style="text-decoration: none;">
+                    <button>{{ page_num }}</button>
+                </a>
+            {% endif %}
+        {% else %}
+            <button disabled>...</button>
+        {% endif %}
+    {% endfor %}
+
+    {% if subjects.has_next %}
+        <a href="{{ url_for('subjects', page=subjects.next_num, search=search, department=department_filter) }}" style="text-decoration: none;">
+            <button>Next</button>
+        </a>
+    {% endif %}
+</div>
+{% endif %}
+
+<!-- Edit Modal -->
+<div id="editModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; justify-content: center; align-items: center;">
+    <div style="background: white; padding: 30px; border-radius: 20px; max-width: 500px; width: 90%; box-shadow: var(--shadow);">
+        <h2 style="margin-top: 0;">Edit Subject</h2>
+        <form method="POST" id="editForm">
+            <input type="hidden" name="subject_id" id="editSubjectId">
+            
+            <label style="display: block; margin-bottom: 5px; color: var(--muted);">Subject Code:</label>
+            <input type="text" name="code" id="editCode" required style="width: 100%; margin-bottom: 15px;">
+            
+            <label style="display: block; margin-bottom: 5px; color: var(--muted);">Subject Name:</label>
+            <input type="text" name="name" id="editName" required style="width: 100%; margin-bottom: 15px;">
+            
+            <label style="display: block; margin-bottom: 5px; color: var(--muted);">Department:</label>
+            <input type="text" name="department" id="editDepartment" style="width: 100%; margin-bottom: 15px;">
+            
+            <label style="display: block; margin-bottom: 5px; color: var(--muted);">Semester:</label>
+            <input type="number" name="semester" id="editSemester" style="width: 100%; margin-bottom: 15px;">
+            
+            <div style="display: flex; gap: 10px; margin-top: 20px;">
+                <button type="submit">Save Changes</button>
+                <button type="button" onclick="closeEditModal()" style="background: #6b6560;">Cancel</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+function editSubject(button) {
+    const id = button.getAttribute('data-id');
+    const code = button.getAttribute('data-code');
+    const name = button.getAttribute('data-name');
+    const department = button.getAttribute('data-department');
+    const semester = button.getAttribute('data-semester');
+    
+    document.getElementById('editSubjectId').value = id;
+    document.getElementById('editCode').value = code;
+    document.getElementById('editName').value = name;
+    document.getElementById('editDepartment').value = department;
+    document.getElementById('editSemester').value = semester;
+    document.getElementById('editForm').action = '/subjects/edit/' + id;
+    document.getElementById('editModal').style.display = 'flex';
+}
+
+function closeEditModal() {
+    document.getElementById('editModal').style.display = 'none';
+}
+</script>
 
 {% endblock %}

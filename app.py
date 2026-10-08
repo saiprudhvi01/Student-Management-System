@@ -102,11 +102,10 @@ def load_user(user_id):
 
 
 @app.route("/")
-def home():
+def landing():
     if current_user.is_authenticated:
         return redirect(url_for("dashboard"))
-
-    return redirect(url_for("login"))
+    return render_template("landing.html")
 
 
 @app.route("/login", methods=["GET", "POST"])
@@ -134,7 +133,50 @@ def logout():
 
     logout_user()
 
-    return redirect(url_for("login"))
+    return redirect(url_for("landing"))
+
+
+@app.route("/register", methods=["GET", "POST"])
+def register():
+
+    if request.method == "POST":
+
+        username = request.form.get("username", "").strip()
+        password = request.form.get("password", "")
+        confirm_password = request.form.get("confirm_password", "")
+        name = request.form.get("name", "").strip()
+        email = request.form.get("email", "").strip()
+        role = request.form.get("role", "")
+
+        if password != confirm_password:
+            flash("Passwords do not match")
+            return render_template("register.html")
+
+        if User.query.filter_by(username=username).first():
+            flash("Username already exists")
+            return render_template("register.html")
+
+        user = User(
+            username=username,
+            password=generate_password_hash(password),
+            role=role,
+            name=name,
+            email=email
+        )
+
+        db.session.add(user)
+        db.session.commit()
+
+        flash("Registration successful! Please login.")
+        return redirect(url_for("login"))
+
+    return render_template("register.html")
+
+
+@app.route("/loading")
+def loading():
+    redirect_url = request.args.get("next", url_for("landing"))
+    return render_template("loading.html", redirect_url=redirect_url)
 
 
 # -------------------------
@@ -148,12 +190,15 @@ def dashboard():
     student_count = Student.query.count()
     teacher_count = Teacher.query.count()
     subject_count = Subject.query.count()
+    user_count = User.query.filter_by(role="teacher").count()
 
     return render_template(
         "dashboard.html",
         student_count=student_count,
         teacher_count=teacher_count,
-        subject_count=subject_count
+        subject_count=subject_count,
+        user_count=user_count,
+        current_user=current_user
     )
 
 
@@ -164,12 +209,53 @@ def dashboard():
 @app.route("/students")
 @login_required
 def students():
+    search = request.args.get("search", "")
+    department_filter = request.args.get("department", "")
+    page = request.args.get("page", 1, type=int)
+    per_page = 10
 
-    students = Student.query.all()
+    query = Student.query
+
+    if search:
+        query = query.filter(
+            (Student.name.contains(search)) |
+            (Student.roll_number.contains(search)) |
+            (Student.email.contains(search))
+        )
+
+    if department_filter:
+        query = query.filter(Student.department == department_filter)
+
+    total = query.count()
+    students = query.offset((page - 1) * per_page).limit(per_page).all()
+
+    departments = db.session.query(Student.department).distinct().all()
+    departments = [d[0] for d in departments if d[0]]
+
+    class SimplePagination:
+        def __init__(self, items, page, per_page, total):
+            self.items = items
+            self.page = page
+            self.per_page = per_page
+            self.total = total
+            self.pages = (total + per_page - 1) // per_page if total > 0 else 1
+            self.has_prev = page > 1
+            self.has_next = page < self.pages
+            self.prev_num = page - 1 if self.has_prev else None
+            self.next_num = page + 1 if self.has_next else None
+
+        def iter_pages(self):
+            for page_num in range(1, self.pages + 1):
+                yield page_num
+
+    pagination = SimplePagination(students, page, per_page, total)
 
     return render_template(
         "students.html",
-        students=students
+        students=pagination,
+        search=search,
+        department_filter=department_filter,
+        departments=departments
     )
 
 
@@ -194,6 +280,37 @@ def add_student():
     return redirect(url_for("students"))
 
 
+@app.route("/students/edit/<int:id>", methods=["POST"])
+@login_required
+def edit_student(id):
+    student = Student.query.get_or_404(id)
+
+    student.roll_number = request.form.get("roll_number", "").strip()
+    student.name = request.form.get("name", "").strip()
+    student.email = request.form.get("email", "").strip() or None
+    student.department = request.form.get("department", "").strip() or None
+    student.semester = request.form.get("semester", type=int) or None
+    student.section = request.form.get("section", "").strip() or None
+
+    db.session.commit()
+
+    flash("Student updated successfully")
+
+    return redirect(url_for("students"))
+
+
+@app.route("/students/delete/<int:id>", methods=["POST"])
+@login_required
+def delete_student(id):
+    student = Student.query.get_or_404(id)
+    db.session.delete(student)
+    db.session.commit()
+
+    flash("Student deleted successfully")
+
+    return redirect(url_for("students"))
+
+
 # -------------------------
 # SUBJECTS
 # -------------------------
@@ -201,12 +318,52 @@ def add_student():
 @app.route("/subjects")
 @login_required
 def subjects():
+    search = request.args.get("search", "")
+    department_filter = request.args.get("department", "")
+    page = request.args.get("page", 1, type=int)
+    per_page = 10
 
-    subjects = Subject.query.all()
+    query = Subject.query
+
+    if search:
+        query = query.filter(
+            (Subject.name.contains(search)) |
+            (Subject.code.contains(search))
+        )
+
+    if department_filter:
+        query = query.filter(Subject.department == department_filter)
+
+    total = query.count()
+    subjects = query.offset((page - 1) * per_page).limit(per_page).all()
+
+    departments = db.session.query(Subject.department).distinct().all()
+    departments = [d[0] for d in departments if d[0]]
+
+    class SimplePagination:
+        def __init__(self, items, page, per_page, total):
+            self.items = items
+            self.page = page
+            self.per_page = per_page
+            self.total = total
+            self.pages = (total + per_page - 1) // per_page if total > 0 else 1
+            self.has_prev = page > 1
+            self.has_next = page < self.pages
+            self.prev_num = page - 1 if self.has_prev else None
+            self.next_num = page + 1 if self.has_next else None
+
+        def iter_pages(self):
+            for page_num in range(1, self.pages + 1):
+                yield page_num
+
+    pagination = SimplePagination(subjects, page, per_page, total)
 
     return render_template(
         "subjects.html",
-        subjects=subjects
+        subjects=pagination,
+        search=search,
+        department_filter=department_filter,
+        departments=departments
     )
 
 
@@ -225,6 +382,35 @@ def add_subject():
     db.session.commit()
 
     flash("Subject added successfully")
+
+    return redirect(url_for("subjects"))
+
+
+@app.route("/subjects/edit/<int:id>", methods=["POST"])
+@login_required
+def edit_subject(id):
+    subject = Subject.query.get_or_404(id)
+
+    subject.code = request.form.get("code", "").strip()
+    subject.name = request.form.get("name", "").strip()
+    subject.department = request.form.get("department", "").strip() or None
+    subject.semester = request.form.get("semester", type=int) or None
+
+    db.session.commit()
+
+    flash("Subject updated successfully")
+
+    return redirect(url_for("subjects"))
+
+
+@app.route("/subjects/delete/<int:id>", methods=["POST"])
+@login_required
+def delete_subject(id):
+    subject = Subject.query.get_or_404(id)
+    db.session.delete(subject)
+    db.session.commit()
+
+    flash("Subject deleted successfully")
 
     return redirect(url_for("subjects"))
 
@@ -270,6 +456,139 @@ def add_attendance():
 # -------------------------
 # MARKS
 # -------------------------
+
+
+# -------------------------
+# TEACHER MANAGEMENT (ADMIN ONLY)
+# -------------------------
+
+@app.route("/teachers")
+@login_required
+def teachers():
+    if current_user.role != "admin":
+        flash("Access denied. Admin only.")
+        return redirect(url_for("dashboard"))
+
+    search = request.args.get("search", "")
+    page = request.args.get("page", 1, type=int)
+    per_page = 10
+
+    query = User.query.filter_by(role="teacher")
+
+    if search:
+        query = query.filter(
+            (User.name.contains(search)) |
+            (User.username.contains(search)) |
+            (User.email.contains(search))
+        )
+
+    total = query.count()
+    teachers = query.offset((page - 1) * per_page).limit(per_page).all()
+
+    class SimplePagination:
+        def __init__(self, items, page, per_page, total):
+            self.items = items
+            self.page = page
+            self.per_page = per_page
+            self.total = total
+            self.pages = (total + per_page - 1) // per_page if total > 0 else 1
+            self.has_prev = page > 1
+            self.has_next = page < self.pages
+            self.prev_num = page - 1 if self.has_prev else None
+            self.next_num = page + 1 if self.has_next else None
+
+        def iter_pages(self):
+            for page_num in range(1, self.pages + 1):
+                yield page_num
+
+    pagination = SimplePagination(teachers, page, per_page, total)
+
+    return render_template(
+        "teachers.html",
+        teachers=pagination,
+        search=search
+    )
+
+
+@app.route("/teachers/add", methods=["POST"])
+@login_required
+def add_teacher():
+    if current_user.role != "admin":
+        flash("Access denied. Admin only.")
+        return redirect(url_for("dashboard"))
+
+    username = request.form.get("username", "").strip()
+    password = request.form.get("password", "")
+    name = request.form.get("name", "").strip()
+    email = request.form.get("email", "").strip()
+
+    if User.query.filter_by(username=username).first():
+        flash("Username already exists")
+        return redirect(url_for("teachers"))
+
+    user = User(
+        username=username,
+        password=generate_password_hash(password),
+        role="teacher",
+        name=name,
+        email=email
+    )
+
+    db.session.add(user)
+    db.session.commit()
+
+    flash("Teacher account created successfully")
+
+    return redirect(url_for("teachers"))
+
+
+@app.route("/teachers/edit/<int:id>", methods=["POST"])
+@login_required
+def edit_teacher(id):
+    if current_user.role != "admin":
+        flash("Access denied. Admin only.")
+        return redirect(url_for("dashboard"))
+
+    user = User.query.get_or_404(id)
+
+    if user.role != "teacher":
+        flash("Cannot edit non-teacher accounts")
+        return redirect(url_for("teachers"))
+
+    user.name = request.form.get("name", "").strip()
+    user.email = request.form.get("email", "").strip()
+
+    password = request.form.get("password", "")
+    if password:
+        user.password = generate_password_hash(password)
+
+    db.session.commit()
+
+    flash("Teacher updated successfully")
+
+    return redirect(url_for("teachers"))
+
+
+@app.route("/teachers/delete/<int:id>", methods=["POST"])
+@login_required
+def delete_teacher(id):
+    if current_user.role != "admin":
+        flash("Access denied. Admin only.")
+        return redirect(url_for("dashboard"))
+
+    user = User.query.get_or_404(id)
+
+    if user.role != "teacher":
+        flash("Cannot delete non-teacher accounts")
+        return redirect(url_for("teachers"))
+
+    db.session.delete(user)
+    db.session.commit()
+
+    flash("Teacher deleted successfully")
+
+    return redirect(url_for("teachers"))
+
 
 @app.route("/marks")
 @login_required
