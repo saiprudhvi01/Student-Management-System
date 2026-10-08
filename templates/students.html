@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<h1>Student Management</h1>
+
+<form method="POST" action="/students/add">
+
+    <input
+        name="roll_number"
+        placeholder="Roll Number"
+        required
+    >
+
+    <input
+        name="name"
+        placeholder="Student Name"
+        required
+    >
+
+    <input
+        name="email"
+        placeholder="Email"
+    >
+
+    <input
+        name="department"
+        placeholder="Department"
+    >
+
+    <input
+        name="semester"
+        type="number"
+        placeholder="Semester"
+    >
+
+    <input
+        name="section"
+        placeholder="Section"
+    >
+
+    <button type="submit">
+        Add Student
+    </button>
+
+</form>
+
+<hr>
+
+<div class="table-wrap">
+    <table>
+
+        <tr>
+            <th>ID</th>
+            <th>Roll Number</th>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Department</th>
+            <th>Semester</th>
+            <th>Section</th>
+        </tr>
+
+        {% for student in students %}
+
+        <tr>
+
+            <td>{{ student.id }}</td>
+            <td>{{ student.roll_number }}</td>
+            <td>{{ student.name }}</td>
+            <td>{{ student.email }}</td>
+            <td>{{ student.department }}</td>
+            <td>{{ student.semester }}</td>
+            <td>{{ student.section }}</td>
+
+        </tr>
+
+        {% endfor %}
+
+    </table>
+</div>
+
+{% endblock %}

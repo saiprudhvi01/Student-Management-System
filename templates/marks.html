@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<h1>Marks Management</h1>
+
+<form method="POST" action="/marks/add">
+
+    <select name="student_id" required>
+
+        <option value="">Select Student</option>
+
+        {% for student in students %}
+
+        <option value="{{ student.id }}">
+            {{ student.roll_number }} - {{ student.name }}
+        </option>
+
+        {% endfor %}
+
+    </select>
+
+    <select name="subject_id" required>
+
+        <option value="">Select Subject</option>
+
+        {% for subject in subjects %}
+
+        <option value="{{ subject.id }}">
+            {{ subject.code }} - {{ subject.name }}
+        </option>
+
+        {% endfor %}
+
+    </select>
+
+    <select name="exam_type">
+
+        <option value="Internal 1">Internal 1</option>
+        <option value="Internal 2">Internal 2</option>
+        <option value="Mid Exam">Mid Exam</option>
+        <option value="Final Exam">Final Exam</option>
+
+    </select>
+
+    <input
+        type="number"
+        name="marks"
+        placeholder="Marks"
+        min="0"
+        max="100"
+        required
+    >
+
+    <button type="submit">
+        Add Marks
+    </button>
+
+</form>
+
+<hr>
+
+<div class="table-wrap">
+    <table>
+
+    <tr>
+        <th>Student</th>
+        <th>Subject</th>
+        <th>Exam</th>
+        <th>Marks</th>
+    </tr>
+
+    {% for record in records %}
+
+    <tr>
+
+        <td>{{ record.student.name }}</td>
+        <td>{{ record.subject.name }}</td>
+        <td>{{ record.exam_type }}</td>
+        <td>{{ record.marks }}</td>
+
+    </tr>
+
+    {% endfor %}
+
+    </table>
+</div>
+
+{% endblock %}
