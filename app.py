@@ -1,4 +1,5 @@
-﻿from flask import Flask, render_template, request, redirect, url_for, flash
+﻿import os
+from flask import Flask, render_template, request, redirect, url_for, flash
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import (
     LoginManager, UserMixin, login_user,
@@ -348,7 +349,9 @@ def create_database():
 
 if __name__ == "__main__":
 
+    port = int(os.environ.get("PORT", 5000))
+
     with app.app_context():
         create_database()
 
-    app.run(debug=True)
+    app.run(host="0.0.0.0", port=port, debug=False)
