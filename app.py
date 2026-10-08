@@ -102,6 +102,13 @@ def load_user(user_id):
 
 
 @app.route("/")
+def intro():
+    if current_user.is_authenticated:
+        return redirect(url_for("dashboard"))
+    return render_template("intro.html")
+
+
+@app.route("/landing")
 def landing():
     if current_user.is_authenticated:
         return redirect(url_for("dashboard"))

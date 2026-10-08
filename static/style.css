@@ -256,12 +256,13 @@ tbody tr:nth-child(even) {
     nav h2 {
         width: 100%;
         margin-bottom: 8px;
+        font-size: 1.4rem;
     }
 
     nav a {
         flex: 1 1 auto;
         text-align: center;
-        font-size: 0.9rem;
+        font-size: 0.85rem;
         padding: 8px 10px;
     }
 
@@ -278,6 +279,7 @@ tbody tr:nth-child(even) {
     button {
         width: 100%;
         flex-basis: 100%;
+        font-size: 0.95rem;
     }
 
     .card {
@@ -289,16 +291,25 @@ tbody tr:nth-child(even) {
         padding: 26px 18px;
     }
 
+    .login-box h1 {
+        font-size: 1.8rem;
+    }
+
+    .login-box p {
+        font-size: 0.95rem;
+    }
+
     .hero-section {
         padding: 40px 20px;
+        margin-top: 20px;
     }
 
     .hero-section h1 {
-        font-size: 2rem;
+        font-size: 1.8rem;
     }
 
     .hero-section p {
-        font-size: 1rem;
+        font-size: 0.95rem;
     }
 
     .features-grid {
@@ -307,6 +318,117 @@ tbody tr:nth-child(even) {
 
     .landing-image {
         height: 200px;
+    }
+
+    .feature-card {
+        padding: 20px;
+    }
+
+    .feature-icon {
+        font-size: 2rem;
+    }
+
+    .feature-card h3 {
+        font-size: 1.1rem;
+    }
+
+    .feature-card p {
+        font-size: 0.9rem;
+    }
+
+    .cta-section {
+        padding: 40px 20px;
+    }
+
+    .cta-button {
+        padding: 14px 30px;
+        font-size: 1rem;
+    }
+
+    h1 {
+        font-size: 1.5rem;
+    }
+
+    h2 {
+        font-size: 1.3rem;
+    }
+
+    h3 {
+        font-size: 1.1rem;
+    }
+
+    .table-wrap {
+        margin-top: 15px;
+    }
+
+    table {
+        font-size: 0.85rem;
+    }
+
+    th,
+    td {
+        padding: 10px 12px;
+    }
+
+    .search-filter-bar {
+        flex-direction: column;
+    }
+
+    .search-filter-bar input,
+    .search-filter-bar select {
+        width: 100%;
+        min-width: auto;
+    }
+
+    .action-buttons {
+        flex-direction: column;
+    }
+
+    .action-buttons button,
+    .action-buttons form {
+        width: 100%;
+    }
+
+    .pagination button {
+        padding: 8px 12px;
+        font-size: 0.85rem;
+    }
+
+    /* Modal improvements for mobile */
+    #editModal > div {
+        width: 95%;
+        padding: 20px;
+    }
+
+    #editModal label {
+        font-size: 0.9rem;
+    }
+
+    #editModal input,
+    #editModal select {
+        font-size: 0.9rem;
+        padding: 10px;
+    }
+
+    /* Intro slideshow mobile improvements */
+    .slide h1 {
+        font-size: 1.8rem;
+    }
+
+    .slide p {
+        font-size: 1rem;
+        padding: 0 20px;
+    }
+
+    .slide-icon {
+        font-size: 3rem;
+    }
+
+    .skip-btn {
+        padding: 8px 16px;
+        font-size: 0.85rem;
+        bottom: 15px;
+        right: 15px;
     }
 }
 
